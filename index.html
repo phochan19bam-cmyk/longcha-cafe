@@ -65,7 +65,6 @@ select {
   border-radius: 10px;
   margin-top: 10px;
 }
-
 </style>
 
 </head>
@@ -124,13 +123,11 @@ select {
 
 <div class="card">
 <b>ท็อปปิ้ง</b><br>
-<button onclick="addItem('วิปครีม',10)">+ วิปครีม 10</button>
+<button onclick="addItem('เพิ่มวิปครีม',10)">+ วิปครีม 10</button>
 </div>
 
-<!-- รายการสั่ง -->
-<div class="order-box" id="orderList">
-ยังไม่มีรายการ
-</div>
+<!-- รายการ -->
+<div class="order-box" id="orderList">ยังไม่มีรายการ</div>
 
 <div class="total" id="total">รวม: 0 บาท</div>
 
@@ -203,11 +200,11 @@ function sendLine(){
 
   let text = "สั่งซื้อ:\n";
   order.forEach(i=>{
-    text += i.name+"\n";
+    text += i.name + "\n";
   });
-  text += "รวม "+total+" บาท";
+  text += "รวม " + total + " บาท";
 
-  let url = "https://line.me/R/oaMessage/@yrjjrxhtun/?" + encodeURIComponent(text);
+  let url = "https://line.me/R/oaMessage/@485xunyk/?" + encodeURIComponent(text);
   window.open(url);
 }
 </script>
