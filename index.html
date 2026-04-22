@@ -3,66 +3,214 @@
 <head>
 <meta charset="UTF-8">
 <title>LONGCHA CAFE</title>
+
 <style>
 body {
   font-family: sans-serif;
-  background: #f5f5f5;
-  text-align: center;
-  padding: 40px;
+  background: #f2f2f2;
+  margin: 0;
 }
-h1 {
-  font-size: 40px;
-}
-.menu {
-  margin-top: 30px;
-}
-.item {
-  background: white;
-  padding: 15px;
-  margin: 10px;
-  border-radius: 10px;
-}
-button {
-  margin-top: 20px;
-  padding: 15px 30px;
-  font-size: 18px;
-  background: #06c755;
+
+.header {
+  background: black;
   color: white;
-  border: none;
-  border-radius: 10px;
+  padding: 20px;
+  font-size: 28px;
+  text-align: center;
 }
+
+.container {
+  padding: 15px;
+}
+
+.card {
+  background: white;
+  border-radius: 15px;
+  margin-bottom: 15px;
+  padding: 15px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+}
+
+button {
+  margin: 5px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: #333;
+  color: white;
+}
+
+.green {
+  background: #06c755;
+}
+
+.red {
+  background: #e74c3c;
+}
+
+select {
+  padding: 5px;
+  margin-top: 5px;
+}
+
+.total {
+  font-size: 20px;
+  text-align: center;
+  margin-top: 15px;
+}
+
+.order-box {
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
 </style>
+
 </head>
 
 <body>
 
-<h1>LONGCHA CAFE</h1>
-<p>เลือกเมนูแล้วกดสั่งได้เลย</p>
+<div class="header">LONGCHA CAFE</div>
 
-<div class="menu">
-  <div class="item">ชาไทย - 40 บาท</div>
-  <div class="item">ชาเขียว - 45 บาท</div>
-  <div class="item">โกโก้ - 50 บาท</div>
+<div class="container">
+
+<!-- เมนู -->
+<div class="card">
+<b>ชาไทย</b><br>
+<button onclick="addDrink('ชาไทย','เย็น',30)">เย็น</button>
+<button onclick="addDrink('ชาไทย','ปั่น',40)">ปั่น</button><br>
+
+ความหวาน:
+<select id="sweet_ชาไทย">
+<option>หวานปกติ</option>
+<option>หวานน้อย</option>
+<option>ไม่หวาน</option>
+</select><br>
+
+<input type="checkbox" id="boba_ชาไทย"> ไข่มุกฟรี
 </div>
 
-<a href="https://line.me/ti/p/yrjjrxhtun" target="_blank">
-  <button>สั่งผ่าน LINE</button>
-</a>
+<div class="card">
+<b>ชาเขียว</b><br>
+<button onclick="addDrink('ชาเขียว','เย็น',30)">เย็น</button>
+<button onclick="addDrink('ชาเขียว','ปั่น',40)">ปั่น</button><br>
+
+ความหวาน:
+<select id="sweet_ชาเขียว">
+<option>หวานปกติ</option>
+<option>หวานน้อย</option>
+<option>ไม่หวาน</option>
+</select><br>
+
+<input type="checkbox" id="boba_ชาเขียว"> ไข่มุกฟรี
+</div>
+
+<div class="card">
+<b>โกโก้</b><br>
+<button onclick="addDrink('โกโก้','เย็น',30)">เย็น</button>
+<button onclick="addDrink('โกโก้','ปั่น',40)">ปั่น</button><br>
+
+ความหวาน:
+<select id="sweet_โกโก้">
+<option>หวานปกติ</option>
+<option>หวานน้อย</option>
+<option>ไม่หวาน</option>
+</select><br>
+
+<input type="checkbox" id="boba_โกโก้"> ไข่มุกฟรี
+</div>
+
+<div class="card">
+<b>ท็อปปิ้ง</b><br>
+<button onclick="addItem('วิปครีม',10)">+ วิปครีม 10</button>
+</div>
+
+<!-- รายการสั่ง -->
+<div class="order-box" id="orderList">
+ยังไม่มีรายการ
+</div>
+
+<div class="total" id="total">รวม: 0 บาท</div>
+
+<div style="text-align:center;">
+<button class="green" onclick="sendLine()">สั่งผ่าน LINE</button>
+<button class="red" onclick="clearOrder()">ล้างรายการ</button>
+</div>
+
+</div>
+
+<script>
+let order = [];
+let total = 0;
+
+function render(){
+  let box = document.getElementById("orderList");
+
+  if(order.length === 0){
+    box.innerHTML = "ยังไม่มีรายการ";
+    return;
+  }
+
+  box.innerHTML = "";
+  order.forEach((item,i)=>{
+    box.innerHTML += item.name + " ("+item.price+" บาท) <button onclick='removeItem("+i+")'>ลบ</button><br>";
+  });
+}
+
+function addDrink(name,type,price){
+  let sweet = document.getElementById("sweet_"+name).value;
+  let boba = document.getElementById("boba_"+name).checked ? " + ไข่มุก" : "";
+
+  let text = name+" "+type+" ("+sweet+")"+boba;
+
+  order.push({name:text, price:price});
+  total += price;
+
+  document.getElementById("total").innerText = "รวม: "+total+" บาท";
+  render();
+}
+
+function addItem(name,price){
+  order.push({name:name, price:price});
+  total += price;
+
+  document.getElementById("total").innerText = "รวม: "+total+" บาท";
+  render();
+}
+
+function removeItem(index){
+  total -= order[index].price;
+  order.splice(index,1);
+
+  document.getElementById("total").innerText = "รวม: "+total+" บาท";
+  render();
+}
+
+function clearOrder(){
+  order = [];
+  total = 0;
+  document.getElementById("total").innerText = "รวม: 0 บาท";
+  render();
+}
+
+function sendLine(){
+  if(order.length === 0){
+    alert("กรุณาเลือกเมนูก่อน");
+    return;
+  }
+
+  let text = "สั่งซื้อ:\n";
+  order.forEach(i=>{
+    text += i.name+"\n";
+  });
+  text += "รวม "+total+" บาท";
+
+  let url = "https://line.me/R/oaMessage/@yrjjrxhtun/?" + encodeURIComponent(text);
+  window.open(url);
+}
+</script>
 
 </body>
 </html>
-<div class="menu">
-  <div class="item">
-    ชาไทย - 40 บาท<br>
-    <a href="https://line.me/R/oaMessage/@yrjjrxhtun/?เอาชาไทย%201%20แก้ว">
-      <button>สั่งเมนูนี้</button>
-    </a>
-  </div>
-
-  <div class="item">
-    ชาเขียว - 45 บาท<br>
-    <a href="https://line.me/R/oaMessage/@yrjjrxhtun/?เอาชาเขียว%201%20แก้ว">
-      <button>สั่งเมนูนี้</button>
-    </a>
-  </div>
-</div>
