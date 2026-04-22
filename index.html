@@ -6,17 +6,16 @@
 
 <style>
 body {
-  font-family: sans-serif;
-  background: #f2f2f2;
   margin: 0;
+  font-family: 'Arial', sans-serif;
+  background: #f7f7f7;
 }
 
 .header {
-  background: black;
-  color: white;
-  padding: 20px;
-  font-size: 28px;
   text-align: center;
+  padding: 30px;
+  font-size: 30px;
+  font-weight: bold;
 }
 
 .container {
@@ -27,16 +26,26 @@ body {
   background: white;
   border-radius: 15px;
   margin-bottom: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.card-content {
   padding: 15px;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
 }
 
 button {
-  margin: 5px;
   padding: 8px 12px;
+  margin: 5px;
   border: none;
   border-radius: 8px;
-  background: #333;
+  background: black;
   color: white;
 }
 
@@ -49,21 +58,19 @@ button {
 }
 
 select {
-  padding: 5px;
   margin-top: 5px;
-}
-
-.total {
-  font-size: 20px;
-  text-align: center;
-  margin-top: 15px;
 }
 
 .order-box {
   background: white;
   padding: 10px;
   border-radius: 10px;
-  margin-top: 10px;
+}
+
+.total {
+  text-align: center;
+  margin: 10px;
+  font-size: 18px;
 }
 </style>
 
@@ -75,9 +82,12 @@ select {
 
 <div class="container">
 
-<!-- เมนู -->
+<!-- ชาไทย -->
 <div class="card">
+<img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87">
+<div class="card-content">
 <b>ชาไทย</b><br>
+
 <button onclick="addDrink('ชาไทย','เย็น',30)">เย็น</button>
 <button onclick="addDrink('ชาไทย','ปั่น',40)">ปั่น</button><br>
 
@@ -90,9 +100,14 @@ select {
 
 <input type="checkbox" id="boba_ชาไทย"> ไข่มุกฟรี
 </div>
+</div>
 
+<!-- ชาเขียว -->
 <div class="card">
+<img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc">
+<div class="card-content">
 <b>ชาเขียว</b><br>
+
 <button onclick="addDrink('ชาเขียว','เย็น',30)">เย็น</button>
 <button onclick="addDrink('ชาเขียว','ปั่น',40)">ปั่น</button><br>
 
@@ -105,9 +120,14 @@ select {
 
 <input type="checkbox" id="boba_ชาเขียว"> ไข่มุกฟรี
 </div>
+</div>
 
+<!-- โกโก้ -->
 <div class="card">
+<img src="https://images.unsplash.com/photo-1511920170033-f8396924c348">
+<div class="card-content">
 <b>โกโก้</b><br>
+
 <button onclick="addDrink('โกโก้','เย็น',30)">เย็น</button>
 <button onclick="addDrink('โกโก้','ปั่น',40)">ปั่น</button><br>
 
@@ -120,15 +140,18 @@ select {
 
 <input type="checkbox" id="boba_โกโก้"> ไข่มุกฟรี
 </div>
+</div>
 
+<!-- ท็อปปิ้ง -->
 <div class="card">
+<div class="card-content">
 <b>ท็อปปิ้ง</b><br>
 <button onclick="addItem('เพิ่มวิปครีม',10)">+ วิปครีม 10</button>
+</div>
 </div>
 
 <!-- รายการ -->
 <div class="order-box" id="orderList">ยังไม่มีรายการ</div>
-
 <div class="total" id="total">รวม: 0 บาท</div>
 
 <div style="text-align:center;">
