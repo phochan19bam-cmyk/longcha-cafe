@@ -6,213 +6,205 @@
 <title>LONGCHA CAFE</title>
 
 <style>
-body {
-  font-family: sans-serif;
-  margin: 0;
-  background: #f5f5f5;
-}
+body{margin:0;font-family:sans-serif;background:#f2f2f2;}
+.header{background:#06c755;color:white;text-align:center;padding:15px;font-size:20px;}
+.menu{padding:10px;}
+.section{font-weight:bold;margin:10px 0;}
 
-.header {
-  text-align: center;
-  background: white;
-  padding: 20px;
-}
+.card{background:white;border-radius:12px;margin-bottom:12px;overflow:hidden;}
+.card img{width:100%;height:140px;object-fit:cover;}
+.card-body{padding:10px;display:flex;justify-content:space-between;}
 
-.header img {
-  width: 100%;
-  max-height: 200px;
-  object-fit: cover;
-  border-radius: 10px;
-}
+button{background:#06c755;color:white;border:none;padding:6px 10px;border-radius:6px;}
 
-h2 {
-  margin: 10px 0;
+.cart-bar{position:fixed;bottom:0;width:100%;background:white;padding:10px;}
+.popup,.cart-popup{
+ position:fixed;top:0;left:0;width:100%;height:100%;
+ background:rgba(0,0,0,0.5);display:none;
+ justify-content:center;align-items:center;
 }
-
-.menu {
-  padding: 15px;
-}
-
-.category {
-  margin-bottom: 20px;
-}
-
-.category h3 {
-  background: #2e7d32;
-  color: white;
-  padding: 10px;
-  border-radius: 8px;
-}
-
-.item {
-  background: white;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 10px;
-  display: flex;
-  justify-content: space-between;
-}
-
-button {
-  background: #2e7d32;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-}
-
-.order-box {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: white;
-  padding: 10px;
-  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-}
-
+.box{background:white;padding:20px;border-radius:12px;width:85%;}
+.item-row{display:flex;justify-content:space-between;margin:8px 0;}
+.qty{display:flex;gap:5px;}
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <!-- 👇 ใส่ชื่อไฟล์รูปตรงนี้ -->
-  <img src="quality_restoration_25690422222956772.jpeg">
-  <h2>LONGCHA CAFE</h2>
-</div>
-
+<div class="header">LONGCHA CAFE</div>
 <div class="menu" id="menu"></div>
 
-<div class="order-box">
-  <button onclick="sendOrder()">สั่งผ่าน LINE</button>
+<div class="cart-bar">
+<button onclick="openCart()">🛒 ดูตะกร้า</button>
+<div id="total">รวม 0 บาท</div>
+<img id="qr" src="qr.jpg" width="100" style="display:none">
+</div>
+
+<!-- popup เลือก -->
+<div class="popup" id="popup">
+<div class="box">
+<b id="pname"></b><br><br>
+ความหวาน:
+<select id="sweet">
+<option>ปกติ</option>
+<option>น้อย</option>
+<option>ไม่หวาน</option>
+</select><br><br>
+<input type="checkbox" id="ice"> แยกน้ำแข็ง<br>
+<input type="checkbox" id="boba"> ใส่ไข่มุก<br><br>
+<button onclick="confirmAdd()">เพิ่ม</button>
+</div>
+</div>
+
+<!-- ตะกร้า -->
+<div class="cart-popup" id="cartPopup">
+<div class="box">
+<h3>ตะกร้า</h3>
+<div id="cartList"></div>
+<h4 id="cartTotal"></h4>
+<button style="width:100%" onclick="sendLine()">สั่งผ่าน LINE</button>
+<button style="width:100%;background:gray" onclick="closeCart()">ปิด</button>
+</div>
 </div>
 
 <script>
 
-let order = [];
+const sections = [
 
-function addItem(name, price){
-  let sweet = prompt("เลือกระดับความหวาน (0%,25%,50%,75%,100%)");
-  let pearl = confirm("ใส่ไข่มุกฟรีไหม?");
-  
-  order.push(`${name} ${sweet || ""} ${pearl ? "+ไข่มุก" : ""} (${price}฿)`);
-  alert("เพิ่มแล้ว");
-}
+["☕ กาแฟ (45)",45,[
+"อเมริกาโน่มะพร้าว","อเมริกาโน่ส้ม","อเมริกาโน่น้ำผึ้งมะนาว",
+"เอสเพรสโซ่","มอคค่า","คาปูชิโน่","ลาเต้","เนสกาแฟ","กาแฟโบราณ"
+]],
 
-function sendOrder(){
-  if(order.length === 0){
-    alert("ยังไม่ได้เลือกเมนู");
-    return;
-  }
+["🥤 เมนูพิเศษ",45,[
+"มะพร้าวนมสดชาไทย","ชาไทยทูโทนนมสด","ชาเขียวช็อคโกโก้",
+"ชาไทยนมสดสตรอเบอร์รี่","เผือกสตรอเบอร์รี่นมสด",
+"ชาไทยนมสดสตรอเบอร์รี่เย็น"
+]],
 
-  let text = "สั่งออเดอร์:\n" + order.join("\n");
-  let url = "https://line.me/R/ti/p/@485xunyk?text=" + encodeURIComponent(text);
-  window.open(url);
-}
+["🧋 ชงเย็น (30)",30,[
+"ชาเขียว","ชาไทย","เนสกาแฟ","เผือก","แคนตาลูป",
+"โกโก้","ช็อคโกแลต","นมสด","นมชมพู","โอวัลติน","ไมโล"
+]],
 
-const menus = [
+["🥤 ปั่น (40)",40,[
+"นมสดปั่น","โกโก้ปั่น","เผือกปั่น","ชาไทยปั่น","ชาเขียวปั่น",
+"ช็อคโกแลตปั่น","แคนตาลูปปั่น","โอวัลตินปั่น","ไมโลปั่น",
+"นมสดคาราเมล","เนสกาแฟปั่น","ปีโป้นมสดปั่น"
+]],
 
-{title:"เมนูชงเย็น (30฿)", items:[
-"ชาเขียว","ชาไทย","เนสกาแฟ","เผือก","แคนตาลูป","โกโก้","ช็อคโกแลต","นมสด","นมชมพู","โอวัลติน","ไมโล"
-], price:30},
+["🍞 ปังเย็น (45)",45,[
+"นมชมพูปังเย็น","โกโก้ปังเย็น","ชาเขียวปังเย็น",
+"ชาไทยปังเย็น","นมสดปังเย็น"
+]],
 
-{title:"เมนูปั่น (40฿)", items:[
-"นมสดปั่น","โกโก้ปั่น","เผือกปั่น","ชาไทยปั่น","ชาเขียวปั่น","ช็อคโกแลตปั่น","แคนตาลูปปั่น","โอวัลตินปั่น","ไมโลปั่น","นมสดคาราเมล","เนสกาแฟปั่น","ปีโป้นมสดปั่น"
-], price:40},
+["🍦 วิปล้วน (25)",25,[
+"สตรอเบอรี่","บลูเบอรี่","ช็อคโกแลต",
+"คาราเมล","คอนเฟล็กซ์","โอริโอ้"
+]],
 
-{title:"เมนูวิปล้วน (25฿)", items:[
-"สตรอเบอรี่","บลูเบอรี่","ช็อคโกแลต","คาราเมล","คอนเฟล็กซ","โอริโอ้"
-], price:25},
+["🍹 โซดา (30)",30,[
+"กีวี่","สตรอเบอร์รี่","บลูเบอร์รี่","แคนตาลูป",
+"บลูฮาวาย","แอปเปิ้ลเขียว","พั้นซ์แดง",
+"เสาวรส","แดงมะนาว","น้ำผึ้งมะนาว","น้ำส้มโซดา"
+]],
 
-{title:"เมนูปังเย็น (45฿)", items:[
-"นมชมพู","โกโก้","ชาเขียว","ชาไทย","นมสด"
-], price:45},
+["🥭 สมูทตี้ (50)",50,[
+"มะนาว","เสาวรส","มะม่วง","เบอร์รี่",
+"บลูเบอรี่","อโวคาโด้","สตรอเบอร์รี่",
+"ส้ม","กีวี่","สับปะรด"
+]],
 
-{title:"อิตาเลียนโซดา (30฿)", items:[
-"กีวี่","สตรอเบอร์รี่","บลูเบอร์รี่","แคนตาลูป","บลูฮาวาย","แอปเปิ้ลเขียว","พั้นซ์แดง","เสาวรส","แดงมะนาว","น้ำผึ้งมะนาว","น้ำส้มโซดา"
-], price:30},
-
-{title:"สมูทตี้ (50฿)", items:[
-"มะนาว","เสาวรส","มะม่วง","เบอร์รี่","บลูเบอรี่","อโวคาโด้","สตรอเบอร์รี่","ส้ม","กีวี่","สับปะรด"
-], price:50},
-
-{title:"โยเกิร์ตสมูทตี้ (60฿)", items:[
-"มะนาว","เสาวรส","มะม่วง","เบอร์รี่","บลูเบอรี่","อโวคาโด้","สตรอเบอร์รี่","ส้ม","กีวี่","สับปะรด"
-], price:60}
+["🥛 โยเกิร์ต (60)",60,[
+"มะนาวโยเกิร์ต","เสาวรสโยเกิร์ต","มะม่วงโยเกิร์ต",
+"เบอร์รี่โยเกิร์ต","บลูเบอรี่โยเกิร์ต","อโวคาโด้โยเกิร์ต",
+"สตรอเบอร์รี่โยเกิร์ต","ส้มโยเกิร์ต","กีวี่โยเกิร์ต","สับปะรดโยเกิร์ต"
+]]
 
 ];
 
-const menuDiv = document.getElementById("menu");
+let cart={},current="",price=0;
 
-menus.forEach(cat=>{
-  let div = document.createElement("div");
-  div.className = "category";
-  
-  let html = `<h3>${cat.title}</h3>`;
-  
-  cat.items.forEach(item=>{
-    html += `
-    <div class="item">
-      <span>${item}</span>
-      <button onclick="addItem('${item}', ${cat.price})">+</button>
+function render(){
+ let html="";
+ sections.forEach(s=>{
+  html+=`<div class="section">${s[0]}</div>`;
+  s[2].forEach(n=>{
+   html+=`
+   <div class="card">
+    <img src="${n}.jpg" onerror="this.src='logo.jpg'">
+    <div class="card-body">
+      ${n}
+      <button onclick="openPopup('${n}',${s[1]})">+</button>
     </div>
-    `;
+   </div>`;
   });
-
-  div.innerHTML = html;
-  menuDiv.appendChild(div);
-});
-
-</script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="th">
-<head>
-<meta charset="UTF-8">
-<title>LONGCHA Cafe</title>
-<style>
-body { font-family: sans-serif; padding:20px; }
-button { margin:5px; padding:10px; }
-#total { font-size:20px; margin-top:20px; }
-img { margin-top:20px; width:200px; }
-</style>
-</head>
-
-<body>
-
-<h2>เมนู</h2>
-
-<button onclick="addItem(45)">อเมริกาโน่มะพร้าว</button>
-<button onclick="addItem(45)">อเมริกาโน่ส้ม</button>
-<button onclick="addItem(45)">เอสเพรสโซ่</button>
-
-<button onclick="addItem(50)">มะพร้าวนมสดชาไทย ปั่น</button>
-<button onclick="addItem(45)">ชาไทยทูโทน</button>
-
-<div id="total">รวม: 0 บาท</div>
-
-<!-- QR -->
-<img id="qr" src="" style="display:none;">
-
-<script>
-let total = 0;
-
-function addItem(price){
-    total += price;
-    updateTotal();
+ });
+ document.getElementById("menu").innerHTML=html;
 }
 
-function updateTotal(){
-    document.getElementById("total").innerText = "รวม: " + total + " บาท";
-
-    if(total > 0){
-        // ใส่ลิงก์ QR ของแบมตรงนี้
-        document.getElementById("qr").src = "URL_QR_ของแบม";
-        document.getElementById("qr").style.display = "block";
-    }
+function openPopup(n,p){
+ current=n; price=p;
+ document.getElementById("pname").innerText=n;
+ document.getElementById("popup").style.display="flex";
 }
+
+function confirmAdd(){
+ let sweet=document.getElementById("sweet").value;
+ let ice=document.getElementById("ice").checked?" แยกน้ำแข็ง":"";
+ let boba=document.getElementById("boba").checked?" +ไข่มุก":"";
+
+ let key=current+"("+sweet+ice+boba+")";
+
+ if(!cart[key]) cart[key]={qty:0,price:price};
+ cart[key].qty++;
+
+ document.getElementById("popup").style.display="none";
+ update();
+}
+
+function update(){
+ let total=0;
+ for(let i in cart){
+  total+=cart[i].qty*cart[i].price;
+ }
+ document.getElementById("total").innerText="รวม "+total+" บาท";
+ if(total>0) document.getElementById("qr").style.display="block";
+}
+
+function openCart(){
+ let html="",total=0;
+ for(let i in cart){
+  let q=cart[i].qty;
+  total+=q*cart[i].price;
+  html+=`
+  <div class="item-row">
+    ${i}
+    <div class="qty">
+      <button onclick="minus('${i}')">-</button>
+      ${q}
+      <button onclick="addAgain('${i}')">+</button>
+    </div>
+  </div>`;
+ }
+ document.getElementById("cartList").innerHTML=html||"ยังไม่มีสินค้า";
+ document.getElementById("cartTotal").innerText="รวม "+total+" บาท";
+ document.getElementById("cartPopup").style.display="flex";
+}
+
+function closeCart(){document.getElementById("cartPopup").style.display="none";}
+function minus(n){cart[n].qty--;if(cart[n].qty<=0) delete cart[n];openCart();update();}
+function addAgain(n){cart[n].qty++;openCart();update();}
+
+function sendLine(){
+ let msg="สั่งซื้อ:\n";
+ for(let i in cart){
+  msg+=`${i} x${cart[i].qty}\n`;
+ }
+ window.open("https://line.me/R/oaMessage/@485xunyk/?"+encodeURIComponent(msg));
+}
+
+render();
 </script>
 
 </body>
