@@ -167,3 +167,53 @@ menus.forEach(cat=>{
 
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>LONGCHA Cafe</title>
+<style>
+body { font-family: sans-serif; padding:20px; }
+button { margin:5px; padding:10px; }
+#total { font-size:20px; margin-top:20px; }
+img { margin-top:20px; width:200px; }
+</style>
+</head>
+
+<body>
+
+<h2>เมนู</h2>
+
+<button onclick="addItem(45)">อเมริกาโน่มะพร้าว</button>
+<button onclick="addItem(45)">อเมริกาโน่ส้ม</button>
+<button onclick="addItem(45)">เอสเพรสโซ่</button>
+
+<button onclick="addItem(50)">มะพร้าวนมสดชาไทย ปั่น</button>
+<button onclick="addItem(45)">ชาไทยทูโทน</button>
+
+<div id="total">รวม: 0 บาท</div>
+
+<!-- QR -->
+<img id="qr" src="" style="display:none;">
+
+<script>
+let total = 0;
+
+function addItem(price){
+    total += price;
+    updateTotal();
+}
+
+function updateTotal(){
+    document.getElementById("total").innerText = "รวม: " + total + " บาท";
+
+    if(total > 0){
+        // ใส่ลิงก์ QR ของแบมตรงนี้
+        document.getElementById("qr").src = "URL_QR_ของแบม";
+        document.getElementById("qr").style.display = "block";
+    }
+}
+</script>
+
+</body>
+</html>
