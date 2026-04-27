@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LONGCHA CAFE</title>
+<style>
+body{font-family:sans-serif;margin:0;background:#f5f5f5;}
+header{background:#00b050;color:#fff;text-align:center;padding:15px;font-size:22px;font-weight:700;}
+.wrap{padding:10px;}
+.section{margin:10px 0;}
+.title{font-size:18px;margin:10px 0;}
+.card{background:#fff;padding:10px;margin:10px 0;border-radius:10px;}
+.card img{width:100%;border-radius:10px;}
+button{margin:3px;background:#00b050;color:#fff;border:none;padding:6px 10px;border-radius:6px;}
+.cart-btn{position:fixed;bottom:10px;left:10px;background:#00b050;color:#fff;padding:10px;border-radius:10px;}
+.popup{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:15px;display:none;max-height:60%;overflow:auto;border-top-left-radius:12px;border-top-right-radius:12px;}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+</style>
+</head>
+<body>
+
+<header>LONGCHA CAFE</header>
+<div class="wrap" id="menu"></div>
+
+<button class="cart-btn" onclick="toggleCart()">🛒 (<span id="count">0</span>)</button>
+
+<div class="popup" id="cart">
+  <h3>ตะกร้า</h3>
+  <div id="cartItems"></div>
+  <h3>รวม: <span id="total">0</span> บาท</h3>
+  <button onclick="sendLine()">📩 ส่งเข้า LINE</button>
+</div>
+
+<script>
+// ===== เมนูครบทุกหมวด =====
+const categories = [
+{ name:"☕ กาแฟเย็น", items:[
+  {n:"อเมริกาโน่มะพร้าวเย็น",p:45},{n:"อเมริกาโน่ส้มเย็น",p:45},{n:"อเมริกาโน่น้ำผึ้งมะนาวเย็น",p:45},
+  {n:"เอสเพรสโซ่เย็น",p:45},{n:"มอคค่าเย็น",p:45},{n:"คาปูชิโน่เย็น",p:45},{n:"ลาเต้เย็น",p:45},
+  {n:"เนสกาแฟเย็น",p:45},{n:"กาแฟโบราณเย็น",p:45}
+]},
+{ name:"⭐ เมนูพิเศษ", items:[
+  {n:"มะพร้าวนมสดชาไทยปั่น",p:50},{n:"ชาไทยทูโทนนมสดปั่น",p:45},{n:"ชาเขียวช็อคโกโก้เย็น",p:45},
+  {n:"ชาไทยนมสดสตรอเบอร์รี่ปั่น",p:50},{n:"เผือกสตรอเบอร์รี่นมสดเย็น",p:45},{n:"ชาไทยนมสดสตรอเบอร์รี่เย็น",p:45}
+]},
+{ name:"🍦 วิปครีม", items:[
+  {n:"สตรอเบอรี่วิปครีม",p:25},{n:"บลูเบอรี่วิปครีม",p:25},{n:"ช็อคโกแลตวิปครีม",p:25},
+  {n:"คาราเมลวิปครีม",p:25},{n:"คอนเฟล็กวิปครีม",p:25},{n:"โอริโอ้วิปครีม",p:25}
+]},
+{ name:"🍞 ปังเย็น", items:[
+  {n:"นมชมพูปังเย็น",p:45},{n:"โกโก้ปังเย็น",p:45},{n:"ชาเขียวปังเย็น",p:45},
+  {n:"ชาไทยปังเย็น",p:45},{n:"นมสดปังเย็น",p:45}
+]},
+{ name:"🧋 ปั่น", items:[
+  {n:"นมสดปั่น",p:40},{n:"โกโก้ปั่น",p:40},{n:"เผือกปั่น",p:40},{n:"ชาไทยปั่น",p:40},{n:"ชาเขียวปั่น",p:40},
+  {n:"ช็อคโกแลตปั่น",p:40},{n:"แคนตาลูปปั่น",p:40},{n:"โอวัลตินปั่น",p:40},{n:"ไมโลปั่น",p:40},
+  {n:"นมสดคาราเมลปั่น",p:40},{n:"เนสกาแฟปั่น",p:40},{n:"ปีโป้นมสดปั่น",p:40}
+]},
+{ name:"🧊 ชงเย็น", items:[
+  {n:"ชาเขียวเย็น",p:30},{n:"ชาไทยเย็น",p:30},{n:"เนสกาแฟเย็น",p:30},{n:"เผือกเย็น",p:30},{n:"แคนตาลูปเย็น",p:30},
+  {n:"โกโก้เย็น",p:30},{n:"ช็อคโกแลตเย็น",p:30},{n:"นมสดเย็น",p:30},{n:"นมชมพูเย็น",p:30},
+  {n:"โอวัลตินเย็น",p:30},{n:"ไมโลเย็น",p:30}
+]},
+{ name:"🧃 โซดา", items:[
+  {n:"กีวี่โซดา",p:30},{n:"สตรอเบอร์รี่โซดา",p:30},{n:"บลูเบอร์รี่โซดา",p:30},{n:"แคนตาลูปโซดา",p:30},
+  {n:"บลูฮาวายโซดา",p:30},{n:"แอปเปิ้ลเขียวโซดา",p:30},{n:"พั้นซ์แดงโซดา",p:30},
+  {n:"เสาวรสโซดา",p:30},{n:"แดงมะนาวโซดา",p:30},{n:"น้ำผึ้งมะนาวโซดา",p:30},{n:"น้ำส้มโซดา",p:30}
+]},
+{ name:"🍧 สมูทตี้", items:[
+  {n:"มะนาวสมูทตี้",p:50},{n:"เสาวรสสมูทตี้",p:50},{n:"มะม่วงสมูทตี้",p:50},{n:"เบอร์รี่สมูทตี้",p:50},
+  {n:"บลูเบอรี่สมูทตี้",p:50},{n:"อโวคาโด้สมูทตี้",p:50},{n:"สตรอเบอร์รี่สมูทตี้",p:50},
+  {n:"ส้มสมูทตี้",p:50},{n:"กีวี่สมูทตี้",p:50},{n:"สับปะรดสมูทตี้",p:50}
+]},
+{ name:"🥛 โยเกิร์ต", items:[
+  {n:"มะนาวโยเกิร์ต",p:60},{n:"เสาวรสโยเกิร์ต",p:60},{n:"มะม่วงโยเกิร์ต",p:60},{n:"เบอร์รี่โยเกิร์ต",p:60},
+  {n:"บลูเบอรี่โยเกิร์ต",p:60},{n:"อโวคาโด้โยเกิร์ต",p:60},{n:"สตรอเบอร์รี่โยเกิร์ต",p:60},
+  {n:"ส้มโยเกิร์ต",p:60},{n:"กีวี่โยเกิร์ต",p:60},{n:"สับปะรดโยเกิร์ต",p:60}
+]}
+];
+
+// ===== render เมนู + รูป + ตัวเลือก =====
+const menuDiv = document.getElementById("menu");
+
+categories.forEach((cat,ci)=>{
+  menuDiv.innerHTML += `<div class="section"><div class="title">${cat.name}</div></div>`;
+
+  cat.items.forEach((it,i)=>{
+    const id = ci + "_" + i;
+
+    menuDiv.innerHTML += `
+      <div class="card">
+        <img src="${it.n}.jpg" onerror="this.src='logo.jpg'">
+        <h3>${it.n}</h3>
+        <p>${it.p} บาท</p>
+
+        <div class="row">
+          <label>ความหวาน</label>
+          <select id="sweet${id}">
+            <option>หวาน 100%</option>
+            <option>หวาน 75%</option>
+            <option>หวาน 50%</option>
+            <option>หวาน 25%</option>
+            <option>ไม่หวาน</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <label><input type="checkbox" id="ice${id}"> แยกน้ำแข็ง</label>
+          <label><input type="checkbox" id="boba${id}"> ไข่มุก</label>
+        </div>
+
+        <button onclick="add('${it.n}', ${it.p}, '${id}')">เพิ่ม</button>
+      </div>
+    `;
+  });
+});
+
+// ===== ตะกร้า =====
+let cart = [];
+
+function add(name, price, id){
+  const sweet = document.getElementById("sweet"+id).value;
+  const ice   = document.getElementById("ice"+id).checked ? "แยกน้ำแข็ง" : "น้ำแข็งปกติ";
+  const boba  = document.getElementById("boba"+id).checked ? "ใส่ไข่มุก" : "ไม่ใส่ไข่มุก";
+
+  const found = cart.find(c => c.name===name && c.sweet===sweet && c.ice===ice && c.boba===boba);
+  if(found){ found.qty++; }
+  else{ cart.push({name, price, qty:1, sweet, ice, boba}); }
+
+  update();
+}
+
+function update(){
+  let total=0, count=0, html="";
+  cart.forEach((c,i)=>{
+    total += c.price*c.qty;
+    count += c.qty;
+    html += `
+      ${c.name} x${c.qty} (${c.sweet}, ${c.ice}, ${c.boba})
+      <button onclick="minus(${i})">-</button>
+      <button onclick="plus(${i})">+</button><br>
+    `;
+  });
+  document.getElementById("total").innerText = total;
+  document.getElementById("count").innerText = count;
+  document.getElementById("cartItems").innerHTML = html;
+}
+
+function plus(i){ cart[i].qty++; update(); }
+function minus(i){ cart[i].qty--; if(cart[i].qty<=0) cart.splice(i,1); update(); }
+
+function toggleCart(){
+  const c = document.getElementById("cart");
+  c.style.display = (c.style.display==="block") ? "none" : "block";
+}
+
+// ===== ส่ง LINE =====
+function sendLine(){
+  let msg = "ออเดอร์ LONGCHA\n";
+  cart.forEach(c=>{
+    msg += `${c.name} x${c.qty} (${c.sweet}, ${c.ice}, ${c.boba})\n`;
+  });
+  msg += "รวม " + document.getElementById("total").innerText + " บาท";
+  window.open("https://line.me/R/oaMessage/@485xunyk/?" + encodeURIComponent(msg));
+}
+</script>
+
+</body>
+</html>
