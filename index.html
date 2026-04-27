@@ -65,24 +65,60 @@ const menu = [
 
 const menuDiv = document.getElementById("menu");
 
-menu.forEach(item => {
+menu.forEach((item, index) => {
   menuDiv.innerHTML += `
     <div class="card">
       <h3>${item.name}</h3>
       <p>${item.price} บาท</p>
-      <button onclick="add('${item.name}',${item.price})">เพิ่ม</button>
+
+      <label>ความหวาน</label><br>
+      <select id="sweet${index}">
+        <option>หวาน 100%</option>
+        <option>หวาน 75%</option>
+        <option>หวาน 50%</option>
+        <option>หวาน 25%</option>
+        <option>ไม่หวาน</option>
+      </select>
+
+      <br><br>
+
+      <label>
+        <input type="checkbox" id="ice${index}">
+        แยกน้ำแข็ง
+      </label>
+
+      <br>
+
+      <label>
+        <input type="checkbox" id="boba${index}">
+        ใส่ไข่มุก
+      </label>
+
+      <br><br>
+
+      <button onclick="add(${index})">เพิ่ม</button>
     </div>
   `;
 });
 
 let total = 0;
 
-function add(name, price){
-  total += price;
-  alert("เพิ่ม " + name + " | รวม " + total + " บาท");
+function add(i){
+  let item = menu[i];
+
+  let sweet = document.getElementById("sweet"+i).value;
+  let ice = document.getElementById("ice"+i).checked ? "แยกน้ำแข็ง" : "น้ำแข็งปกติ";
+  let boba = document.getElementById("boba"+i).checked ? "ใส่ไข่มุก" : "ไม่ใส่ไข่มุก";
+
+  total += item.price;
+
+  alert(
+    "เพิ่ม " + item.name +
+    "\n" + sweet +
+    "\n" + ice +
+    "\n" + boba +
+    "\nรวม " + total + " บาท"
+  );
 }
 
 </script>
-
-</body>
-</html>
