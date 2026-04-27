@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LONGCHA CAFE</title>
+
+<style>
+body{font-family:sans-serif;margin:0;background:#f5f5f5;}
+.header{background:#16a34a;color:#fff;text-align:center;padding:15px;font-size:22px;}
+.menu{padding:10px;}
+.category{margin-top:20px;font-weight:bold;}
+.item{background:#fff;margin:10px 0;padding:10px;border-radius:10px;display:flex;gap:10px;}
+.item img{width:80px;height:80px;border-radius:10px;object-fit:cover;}
+.cart-btn{position:fixed;bottom:10px;left:10px;background:#16a34a;color:#fff;padding:10px;border-radius:10px;}
+.popup{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:15px;display:none;max-height:60%;overflow:auto;}
+button{margin:2px;}
+</style>
+</head>
+
+<body>
+
+<div class="header">LONGCHA CAFE</div>
+<div class="menu" id="menu"></div>
+
+<button class="cart-btn" onclick="toggleCart()">🛒 (<span id="count">0</span>)</button>
+
+<div class="popup" id="cart">
+<h3>ตะกร้า</h3>
+<div id="cartItems"></div>
+<h3>รวม: <span id="total">0</span> บาท</h3>
+<button onclick="sendLine()">📩 ส่งเข้า LINE</button>
+</div>
+
+<script>
+
+const menu = [
+
+{cat:"กาแฟเย็น",price:45,items:[
+"อเมริกาโน่มะพร้าว เย็น","อเมริกาโน่ส้ม เย็น","อเมริกาโน่น้ำผึ้งมะนาว เย็น",
+"เอสเพรสโซ่ เย็น","มอคค่า เย็น","คาปูชิโน่ เย็น","ลาเต้ เย็น","เนสกาแฟ เย็น","กาแฟโบราณ เย็น"
+]},
+
+{cat:"เมนูพิเศษ",price:50,items:[
+"มะพร้าวนมสดชาไทยปั่น","ชาไทยทูโทนนมสดปั่น","ชาเขียวช็อคโกโก้ เย็น",
+"ชาไทยนมสดสตรอเบอร์รี่ปั่น","เผือกสตรอเบอร์รี่นมสด เย็น","ชาไทยนมสดสตรอเบอร์รี่ เย็น"
+]},
+
+{cat:"วิปครีม",price:25,items:[
+"สตรอเบอรี่วิปครีม","บลูเบอรี่วิปครีม","ช็อคโกแลตวิปครีม","คาราเมลวิปครีม","คอนเฟล็กวิปครีม","โอริโอ้วิปครีม"
+]},
+
+{cat:"ปังเย็น",price:45,items:[
+"นมชมพูปังเย็น","โกโก้ปังเย็น","ชาเขียวปังเย็น","ชาไทยปังเย็น","นมสดปังเย็น"
+]},
+
+{cat:"ปั่น",price:40,items:[
+"นมสดปั่น","โกโก้ปั่น","เผือกปั่น","ชาไทยปั่น","ชาเขียวปั่น","ช็อคโกแลตปั่น",
+"แคนตาลูปปั่น","โอวัลตินปั่น","ไมโลปั่น","นมสดคาราเมลปั่น","เนสกาแฟปั่น","ปีโป้นมสดปั่น"
+]},
+
+{cat:"ชงเย็น",price:30,items:[
+"ชาเขียว เย็น","ชาไทย เย็น","เนสกาแฟ เย็น","เผือก เย็น","แคนตาลูป เย็น","โกโก้ เย็น",
+"ช็อคโกแลต เย็น","นมสด เย็น","นมชมพู เย็น","โอวัลติน เย็น","ไมโล เย็น"
+]},
+
+{cat:"โซดา",price:30,items:[
+"กีวี่โซดา","สตรอเบอร์รี่โซดา","บลูเบอร์รี่โซดา","แคนตาลูปโซดา","บลูฮาวายโซดา",
+"แอปเปิ้ลเขียวโซดา","พั้นซ์แดงโซดา","เสาวรสโซดา","แดงมะนาวโซดา","น้ำผึ้งมะนาวโซดา","น้ำส้มโซดา"
+]},
+
+{cat:"สมูทตี้",price:50,items:[
+"มะนาวสมูทตี้","เสาวรสสมูทตี้","มะม่วงสมูทตี้","เบอร์รี่สมูทตี้","บลูเบอรี่สมูทตี้",
+"อโวคาโด้สมูทตี้","สตรอเบอร์รี่สมูทตี้","ส้มสมูทตี้","กีวี่สมูทตี้","สับปะรดสมูทตี้"
+]},
+
+{cat:"โยเกิร์ต",price:60,items:[
+"มะนาวโยเกิร์ต","เสาวรสโยเกิร์ต","มะม่วงโยเกิร์ต","เบอร์รี่โยเกิร์ต",
+"บลูเบอรี่โยเกิร์ต","อโวคาโด้โยเกิร์ต","สตรอเบอร์รี่โยเกิร์ต",
+"ส้มโยเกิร์ต","กีวี่โยเกิร์ต","สับปะรดโยเกิร์ต"
+]}
+
+];
+
+let cart=[];
+
+function render(){
+let html="";
+menu.forEach(m=>{
+html+=`<div class="category">${m.cat}</div>`;
+m.items.forEach(n=>{
+html+=`
+<div class="item">
+<img src="${n}.jpg" onerror="this.src='logo.jpg'">
+<div>
+${n}<br>${m.price} บาท<br>
+<button onclick="add('${n}',${m.price})">เพิ่ม</button>
+</div>
+</div>`;
+});
+});
+document.getElementById("menu").innerHTML=html;
+}
+
+function add(n,p){
+let found=cart.find(i=>i.n===n);
+if(found){found.qty++;}else{cart.push({n,p,qty:1});}
+update();
+}
+
+function update(){
+let total=0,count=0,html="";
+cart.forEach((c,i)=>{
+total+=c.p*c.qty;
+count+=c.qty;
+html+=`
+${c.n}
+<button onclick="minus(${i})">-</button>
+${c.qty}
+<button onclick="plus(${i})">+</button><br>
+`;
+});
+document.getElementById("total").innerText=total;
+document.getElementById("count").innerText=count;
+document.getElementById("cartItems").innerHTML=html;
+}
+
+function plus(i){cart[i].qty++;update();}
+function minus(i){cart[i].qty--;if(cart[i].qty<=0)cart.splice(i,1);update();}
+
+function toggleCart(){
+let c=document.getElementById("cart");
+c.style.display=c.style.display==="block"?"none":"block";
+}
+
+function sendLine(){
+let msg="ออเดอร์ LONGCHA\n";
+cart.forEach(c=>{msg+=`${c.n} x${c.qty}\n`;});
+msg+="รวม "+document.getElementById("total").innerText+" บาท";
+
+window.open("https://line.me/R/oaMessage/@485xunyk/?"+encodeURIComponent(msg));
+}
+
+render();
+
+</script>
+
+</body>
+</html>
