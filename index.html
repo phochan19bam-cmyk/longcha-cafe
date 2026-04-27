@@ -6,39 +6,13 @@
 <title>LONGCHA CAFE</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: sans-serif;
-  background: #f5f5f5;
-}
-
-header {
-  background: #00b050;
-  color: white;
-  text-align: center;
-  padding: 15px;
-  font-size: 22px;
-  font-weight: bold;
-}
-
-.menu {
-  padding: 10px;
-}
-
-.card {
-  background: white;
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-button {
-  background: #00b050;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-}
+body{font-family:sans-serif;margin:0;background:#f5f5f5;}
+header{background:#00b050;color:#fff;text-align:center;padding:15px;font-size:22px;}
+.menu{padding:10px;}
+.card{background:#fff;padding:10px;margin:10px 0;border-radius:10px;}
+.cart-btn{position:fixed;bottom:10px;left:10px;background:#00b050;color:#fff;padding:10px;border-radius:10px;}
+.popup{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:15px;display:none;max-height:60%;overflow:auto;}
+button{margin:3px;}
 </style>
 </head>
 
@@ -48,77 +22,117 @@ button {
 
 <div class="menu" id="menu"></div>
 
+<button class="cart-btn" onclick="toggleCart()">🛒 (<span id="count">0</span>)</button>
+
+<div class="popup" id="cart">
+<h3>ตะกร้า</h3>
+<div id="cartItems"></div>
+<h3>รวม: <span id="total">0</span> บาท</h3>
+<button onclick="sendLine()">📩 ส่งเข้า LINE</button>
+</div>
+
 <script>
 
 const menu = [
-  {name:"อเมริกาโน่มะพร้าวเย็น", price:45},
-  {name:"เอสเพรสโซ่เย็น", price:45},
-  {name:"ชาไทยเย็น", price:30},
-  {name:"ชาเขียวเย็น", price:30},
-  {name:"โกโก้เย็น", price:30},
-  {name:"สตรอเบอร์รี่โซดา", price:30},
-  {name:"มะม่วงสมูทตี้", price:50},
-  {name:"นมสดปั่น", price:40},
-  {name:"ปังเย็นโกโก้", price:45},
-  {name:"วิปครีมช็อคโกแลต", price:25}
+{name:"อเมริกาโน่มะพร้าวเย็น",price:45},
+{name:"เอสเพรสโซ่เย็น",price:45},
+{name:"ชาไทยเย็น",price:30},
+{name:"ชาเขียวเย็น",price:30},
+{name:"โกโก้เย็น",price:30},
+{name:"สตรอเบอร์รี่โซดา",price:30},
+{name:"มะม่วงสมูทตี้",price:50},
+{name:"นมสดปั่น",price:40},
+{name:"ปังเย็นโกโก้",price:45},
+{name:"วิปครีมช็อคโกแลต",price:25}
 ];
 
-const menuDiv = document.getElementById("menu");
+let cart=[];
 
-menu.forEach((item, index) => {
-  menuDiv.innerHTML += `
-    <div class="card">
-      <h3>${item.name}</h3>
-      <p>${item.price} บาท</p>
+const menuDiv=document.getElementById("menu");
 
-      <label>ความหวาน</label><br>
-      <select id="sweet${index}">
-        <option>หวาน 100%</option>
-        <option>หวาน 75%</option>
-        <option>หวาน 50%</option>
-        <option>หวาน 25%</option>
-        <option>ไม่หวาน</option>
-      </select>
+menu.forEach((item,i)=>{
+menuDiv.innerHTML+=`
+<div class="card">
+<h3>${item.name}</h3>
+<p>${item.price} บาท</p>
 
-      <br><br>
+<select id="sweet${i}">
+<option>หวาน 100%</option>
+<option>หวาน 75%</option>
+<option>หวาน 50%</option>
+<option>หวาน 25%</option>
+<option>ไม่หวาน</option>
+</select>
 
-      <label>
-        <input type="checkbox" id="ice${index}">
-        แยกน้ำแข็ง
-      </label>
+<br>
 
-      <br>
+<label><input type="checkbox" id="ice${i}"> แยกน้ำแข็ง</label>
+<label><input type="checkbox" id="boba${i}"> ไข่มุก</label>
 
-      <label>
-        <input type="checkbox" id="boba${index}">
-        ใส่ไข่มุก
-      </label>
+<br><br>
 
-      <br><br>
-
-      <button onclick="add(${index})">เพิ่ม</button>
-    </div>
-  `;
+<button onclick="add(${i})">เพิ่ม</button>
+</div>
+`;
 });
 
-let total = 0;
-
 function add(i){
-  let item = menu[i];
+let item=menu[i];
 
-  let sweet = document.getElementById("sweet"+i).value;
-  let ice = document.getElementById("ice"+i).checked ? "แยกน้ำแข็ง" : "น้ำแข็งปกติ";
-  let boba = document.getElementById("boba"+i).checked ? "ใส่ไข่มุก" : "ไม่ใส่ไข่มุก";
+let sweet=document.getElementById("sweet"+i).value;
+let ice=document.getElementById("ice"+i).checked?"แยกน้ำแข็ง":"น้ำแข็งปกติ";
+let boba=document.getElementById("boba"+i).checked?"ใส่ไข่มุก":"ไม่ใส่ไข่มุก";
 
-  total += item.price;
+let found=cart.find(c=>c.name===item.name&&c.sweet===sweet&&c.ice===ice&&c.boba===boba);
 
-  alert(
-    "เพิ่ม " + item.name +
-    "\n" + sweet +
-    "\n" + ice +
-    "\n" + boba +
-    "\nรวม " + total + " บาท"
-  );
+if(found){found.qty++;}
+else{
+cart.push({name:item.name,price:item.price,qty:1,sweet,ice,boba});
+}
+
+update();
+}
+
+function update(){
+let total=0,count=0,html="";
+
+cart.forEach((c,i)=>{
+total+=c.price*c.qty;
+count+=c.qty;
+
+html+=`
+${c.name} (${c.sweet}, ${c.ice}, ${c.boba})
+<button onclick="minus(${i})">-</button>
+${c.qty}
+<button onclick="plus(${i})">+</button>
+<br>
+`;
+});
+
+document.getElementById("total").innerText=total;
+document.getElementById("count").innerText=count;
+document.getElementById("cartItems").innerHTML=html;
+}
+
+function plus(i){cart[i].qty++;update();}
+function minus(i){cart[i].qty--;if(cart[i].qty<=0)cart.splice(i,1);update();}
+
+function toggleCart(){
+let c=document.getElementById("cart");
+c.style.display=c.style.display==="block"?"none":"block";
+}
+
+function sendLine(){
+let msg="ออเดอร์ LONGCHA\n";
+cart.forEach(c=>{
+msg+=`${c.name} x${c.qty} (${c.sweet}, ${c.ice}, ${c.boba})\n`;
+});
+msg+="รวม "+document.getElementById("total").innerText+" บาท";
+
+window.open("https://line.me/R/oaMessage/@485xunyk/?"+encodeURIComponent(msg));
 }
 
 </script>
+
+</body>
+</html>
