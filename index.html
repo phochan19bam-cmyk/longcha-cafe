@@ -138,9 +138,11 @@ let cart=[];
 
 const menuDiv=document.getElementById("menu");
 
-menu.forEach((item,i)=>{
-menuDiv.innerHTML+=`
+menuDiv.innerHTML += `
 <div class="card">
+
+<img src="${item.name}.jpg" onerror="this.src='logo.jpg'" width="100%">
+
 <h3>${item.name}</h3>
 <p>${item.price} บาท</p>
 
