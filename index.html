@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LONGCHA CAFE</title>
+
+<style>
+body{margin:0;font-family:sans-serif;background:#f5f5f5;}
+header{background:#00b050;color:#fff;text-align:center;padding:15px;font-size:22px;}
+.menu{padding:10px;}
+.card{background:#fff;border-radius:10px;padding:10px;margin-bottom:10px;}
+img{width:100%;border-radius:10px;}
+button{background:#00b050;color:#fff;border:none;padding:8px;border-radius:6px;margin-top:5px;}
+select{margin-top:5px;}
+</style>
+</head>
+
+<body>
+
+<header>LONGCHA CAFE</header>
+
+<div class="menu" id="menu"></div>
+
+<script>
+
+const menu = [
+{name:"ชาไทยเย็น",price:30},
+{name:"ชาเขียวเย็น",price:30},
+{name:"โกโก้เย็น",price:30},
+{name:"นมสดเย็น",price:30},
+
+{name:"นมสดปั่น",price:40},
+{name:"โกโก้ปั่น",price:40},
+
+{name:"มะม่วงสมูทตี้",price:50},
+
+{name:"สตรอเบอร์รี่โซดา",price:30},
+
+{name:"นมสดโอริโอ้ปั่น",price:45},
+{name:"โกโก้โอริโอ้ปั่น",price:45}
+];
+
+const menuDiv = document.getElementById("menu");
+
+menu.forEach((item,i)=>{
+menuDiv.innerHTML+=`
+<div class="card">
+
+<img src="${item.name}.jpg" onerror="this.src='logo.jpg'">
+
+<h3>${item.name}</h3>
+<p>${item.price} บาท</p>
+
+<select>
+<option>หวาน 100%</option>
+<option>หวาน 75%</option>
+<option>หวาน 50%</option>
+<option>หวาน 25%</option>
+<option>ไม่หวาน</option>
+</select>
+
+<br>
+
+<label><input type="checkbox"> แยกน้ำแข็ง</label><br>
+<label><input type="checkbox"> เพิ่มวิปครีม +10</label>
+
+<br>
+
+<button onclick="add(${item.price})">เพิ่ม</button>
+
+</div>
+`;
+});
+
+let total=0;
+
+function add(price){
+total+=price;
+alert("รวม "+total+" บาท");
+}
+
+</script>
+
+</body>
+</html>
