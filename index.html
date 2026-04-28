@@ -6,13 +6,14 @@
 <title>LONGCHA CAFE</title>
 
 <style>
-body{margin:0;font-family:sans-serif;background:#f5f5f5;}
-header{background:#00b050;color:#fff;text-align:center;padding:15px;font-size:22px;}
+body{font-family:sans-serif;margin:0;background:#f5f5f5;}
+header{background:#00b050;color:#fff;text-align:center;padding:15px;font-size:22px;font-weight:bold;}
 .menu{padding:10px;}
-.card{background:#fff;border-radius:10px;padding:10px;margin-bottom:10px;}
+.card{background:#fff;padding:10px;margin:10px 0;border-radius:10px;}
 img{width:100%;border-radius:10px;}
-button{background:#00b050;color:#fff;border:none;padding:8px;border-radius:6px;margin-top:5px;}
-select{margin-top:5px;}
+button{margin:3px;background:#00b050;color:#fff;border:none;padding:5px 10px;border-radius:5px;}
+.cart-btn{position:fixed;bottom:10px;left:10px;background:#00b050;color:#fff;padding:10px;border-radius:10px;}
+.popup{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:15px;display:none;max-height:60%;overflow:auto;}
 </style>
 </head>
 
@@ -22,26 +23,113 @@ select{margin-top:5px;}
 
 <div class="menu" id="menu"></div>
 
+<button class="cart-btn" onclick="toggleCart()">🛒 (<span id="count">0</span>)</button>
+
+<div class="popup" id="cart">
+<h3>ตะกร้า</h3>
+<div id="cartItems"></div>
+<h3>รวม: <span id="total">0</span> บาท</h3>
+<button onclick="sendLine()">📩 ส่งเข้า LINE</button>
+</div>
+
 <script>
 
 const menu = [
-{name:"ชาไทยเย็น",price:30},
-{name:"ชาเขียวเย็น",price:30},
-{name:"โกโก้เย็น",price:30},
-{name:"นมสดเย็น",price:30},
+
+{name:"อเมริกาโน่มะพร้าวเย็น",price:45},
+{name:"อเมริกาโน่ส้มเย็น",price:45},
+{name:"อเมริกาโน่น้ำผึ้งมะนาวเย็น",price:45},
+{name:"เอสเพรสโซ่เย็น",price:45},
+{name:"มอคค่าเย็น",price:45},
+{name:"คาปูชิโน่เย็น",price:45},
+{name:"ลาเต้เย็น",price:45},
+{name:"เนสกาแฟเย็น",price:45},
+{name:"กาแฟโบราณเย็น",price:45},
+
+{name:"มะพร้าวนมสดชาไทยปั่น",price:50},
+{name:"ชาไทยทูโทนนมสดเย็น", price:45},
+{name:"ชาเขียวช็อคโกโก้เย็น",price:45},
+{name:"ชาไทยนมสดสตรอเบอร์รี่ปั่น",price:50},
+{name:"เผือกสตรอเบอร์รี่นมสดเย็น",price:45},
+{name:"ชาไทยนมสดสตรอเบอร์รี่เย็น",price:45},
+
+{name:"สตรอเบอรี่วิปครีม",price:25},
+{name:"บลูเบอรี่วิปครีม",price:25},
+{name:"ช็อคโกแลตวิปครีม",price:25},
+{name:"คาราเมลวิปครีม",price:25},
+{name:"คอนเฟล็กวิปครีม",price:25},
+{name:"โอริโอ้วิปครีม",price:25},
+
+{name:"นมชมพูปังเย็น",price:45},
+{name:"โกโก้ปังเย็น",price:45},
+{name:"ชาเขียวปังเย็น",price:45},
+{name:"ชาไทยปังเย็น",price:45},
+{name:"นมสดปังเย็น",price:45},
 
 {name:"นมสดปั่น",price:40},
 {name:"โกโก้ปั่น",price:40},
+{name:"เผือกปั่น",price:40},
+{name:"ชาไทยปั่น",price:40},
+{name:"ชาเขียวปั่น",price:40},
+{name:"ช็อคโกแลตปั่น",price:40},
+{name:"แคนตาลูปปั่น",price:40},
+{name:"โอวัลตินปั่น",price:40},
+{name:"ไมโลปั่น",price:40},
+{name:"นมสดคาราเมลปั่น",price:40},
+{name:"เนสกาแฟปั่น",price:40},
+{name:"ปีโป้นมสดปั่น",price:40},
 
-{name:"มะม่วงสมูทตี้",price:50},
+{name:"ชาเขียวเย็น",price:30},
+{name:"ชาไทยเย็น",price:30},
+{name:"เนสกาแฟเย็น",price:30},
+{name:"เผือกเย็น",price:30},
+{name:"แคนตาลูปเย็น",price:30},
+{name:"โกโก้เย็น",price:30},
+{name:"ช็อคโกแลตเย็น",price:30},
+{name:"นมสดเย็น",price:30},
+{name:"นมชมพูเย็น",price:30},
+{name:"โอวัลตินเย็น",price:30},
+{name:"ไมโลเย็น",price:30},
 
+{name:"กีวี่โซดา",price:30},
 {name:"สตรอเบอร์รี่โซดา",price:30},
+{name:"บลูเบอร์รี่โซดา",price:30},
+{name:"แคนตาลูปโซดา",price:30},
+{name:"บลูฮาวายโซดา",price:30},
+{name:"แอปเปิ้ลเขียวโซดา",price:30},
+{name:"พั้นซ์แดงโซดา",price:30},
+{name:"เสาวรสโซดา",price:30},
+{name:"แดงมะนาวโซดา",price:30},
+{name:"น้ำผึ้งมะนาวโซดา",price:30},
+{name:"น้ำส้มโซดา",price:30},
 
-{name:"นมสดโอริโอ้ปั่น",price:45},
-{name:"โกโก้โอริโอ้ปั่น",price:45}
+{name:"มะนาวสมูทตี้",price:50},
+{name:"เสาวรสสมูทตี้",price:50},
+{name:"มะม่วงสมูทตี้",price:50},
+{name:"เบอร์รี่สมูทตี้",price:50},
+{name:"บลูเบอรี่สมูทตี้",price:50},
+{name:"อโวคาโด้สมูทตี้",price:50},
+{name:"สตรอเบอร์รี่สมูทตี้",price:50},
+{name:"ส้มสมูทตี้",price:50},
+{name:"กีวี่สมูทตี้",price:50},
+{name:"สับปะรดสมูทตี้",price:50},
+
+{name:"มะนาวโยเกิร์ต",price:60},
+{name:"เสาวรสโยเกิร์ต",price:60},
+{name:"มะม่วงโยเกิร์ต",price:60},
+{name:"เบอร์รี่โยเกิร์ต",price:60},
+{name:"บลูเบอรี่โยเกิร์ต",price:60},
+{name:"อโวคาโด้โยเกิร์ต",price:60},
+{name:"สตรอเบอร์รี่โยเกิร์ต",price:60},
+{name:"ส้มโยเกิร์ต",price:60},
+{name:"กีวี่โยเกิร์ต",price:60},
+{name:"สับปะรดโยเกิร์ต",price:60}
+
 ];
 
-const menuDiv = document.getElementById("menu");
+let cart=[];
+
+const menuDiv=document.getElementById("menu");
 
 menu.forEach((item,i)=>{
 menuDiv.innerHTML+=`
@@ -52,7 +140,7 @@ menuDiv.innerHTML+=`
 <h3>${item.name}</h3>
 <p>${item.price} บาท</p>
 
-<select>
+<select id="sweet${i}">
 <option>หวาน 100%</option>
 <option>หวาน 75%</option>
 <option>หวาน 50%</option>
@@ -62,22 +150,66 @@ menuDiv.innerHTML+=`
 
 <br>
 
-<label><input type="checkbox"> แยกน้ำแข็ง</label><br>
-<label><input type="checkbox"> เพิ่มวิปครีม +10</label>
+<label><input type="checkbox" id="ice${i}"> แยกน้ำแข็ง</label>
+<label><input type="checkbox" id="boba${i}"> ไข่มุก</label>
 
-<br>
+<br><br>
 
-<button onclick="add(${item.price})">เพิ่ม</button>
+<button onclick="add(${i})">เพิ่ม</button>
 
 </div>
 `;
 });
 
-let total=0;
+function add(i){
+let item=menu[i];
 
-function add(price){
-total+=price;
-alert("รวม "+total+" บาท");
+let sweet=document.getElementById("sweet"+i).value;
+let ice=document.getElementById("ice"+i).checked?"แยกน้ำแข็ง":"น้ำแข็งปกติ";
+let boba=document.getElementById("boba"+i).checked?"ใส่ไข่มุก":"ไม่ใส่ไข่มุก";
+
+let found=cart.find(c=>c.name===item.name&&c.sweet===sweet&&c.ice===ice&&c.boba===boba);
+
+if(found){found.qty++;}
+else{cart.push({name:item.name,price:item.price,qty:1,sweet,ice,boba});}
+
+update();
+}
+
+function update(){
+let total=0,count=0,html="";
+
+cart.forEach((c,i)=>{
+total+=c.price*c.qty;
+count+=c.qty;
+
+html+=`${c.name} (${c.sweet}, ${c.ice}, ${c.boba})
+<button onclick="minus(${i})">-</button>
+${c.qty}
+<button onclick="plus(${i})">+</button><br>`;
+});
+
+document.getElementById("total").innerText=total;
+document.getElementById("count").innerText=count;
+document.getElementById("cartItems").innerHTML=html;
+}
+
+function plus(i){cart[i].qty++;update();}
+function minus(i){cart[i].qty--;if(cart[i].qty<=0)cart.splice(i,1);update();}
+
+function toggleCart(){
+let c=document.getElementById("cart");
+c.style.display=c.style.display==="block"?"none":"block";
+}
+
+function sendLine(){
+let msg="ออเดอร์ LONGCHA\n";
+cart.forEach(c=>{
+msg+=`${c.name} x${c.qty} (${c.sweet}, ${c.ice}, ${c.boba})\n`;
+});
+msg+="รวม "+document.getElementById("total").innerText+" บาท";
+
+window.open("https://line.me/R/oaMessage/@485xunyk/?"+encodeURIComponent(msg));
 }
 
 </script>
