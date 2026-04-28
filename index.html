@@ -77,13 +77,6 @@ const categories = [
   {n:"บลูเบอรี่โยเกิร์ต",p:60},{n:"อโวคาโด้โยเกิร์ต",p:60},{n:"สตรอเบอร์รี่โยเกิร์ต",p:60},
   {n:"ส้มโยเกิร์ต",p:60},{n:"กีวี่โยเกิร์ต",p:60},{n:"สับปะรดโยเกิร์ต",p:60}
 ]}
-  {name:"นมสดโอริโอ้ปั่น", price:45},
-{name:"โกโก้โอริโอ้ปั่น", price:45},
-{name:"ชาไทยโอริโอ้ปั่น", price:45},
-{name:"ชาเขียวโอริโอ้ปั่น", price:45},
-{name:"เผือกโอริโอ้ปั่น", price:45},
-{name:"นมชมพูโอริโอ้ปั่น", price:45},
-  
 ];
 
 // ===== render เมนู + รูป + ตัวเลือก =====
@@ -115,7 +108,6 @@ categories.forEach((cat,ci)=>{
         <div class="row">
           <label><input type="checkbox" id="ice${id}"> แยกน้ำแข็ง</label>
           <label><input type="checkbox" id="boba${id}"> ไข่มุก</label>
-          <label><input type="checkbox" id="whip${i}"> เพิ่มวิปครีม +10</label>
         </div>
 
         <button onclick="add('${it.n}', ${it.p}, '${id}')">เพิ่ม</button>
