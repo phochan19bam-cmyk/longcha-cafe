@@ -124,7 +124,13 @@ const menu = [
 {name:"ส้มโยเกิร์ต",price:60},
 {name:"กีวี่โยเกิร์ต",price:60},
 {name:"สับปะรดโยเกิร์ต",price:60}
-
+{name:"นมสดโอริโอ้ปั่น", price:45},
+{name:"โกโก้โอริโอ้ปั่น", price:45},
+{name:"ชาไทยโอริโอ้ปั่น", price:45},
+{name:"ชาเขียวโอริโอ้ปั่น", price:45},
+{name:"เผือกโอริโอ้ปั่น", price:45},
+{name:"นมชมพูโอริโอ้ปั่น", price:45},
+  
 ];
 
 let cart=[];
@@ -152,6 +158,7 @@ menuDiv.innerHTML+=`
 
 <label><input type="checkbox" id="ice${i}"> แยกน้ำแข็ง</label>
 <label><input type="checkbox" id="boba${i}"> ไข่มุก</label>
+<label><input type="checkbox" id="whip${i}"> เพิ่มวิปครีม +10</label>
 
 <br><br>
 
@@ -167,11 +174,18 @@ let item=menu[i];
 let sweet=document.getElementById("sweet"+i).value;
 let ice=document.getElementById("ice"+i).checked?"แยกน้ำแข็ง":"น้ำแข็งปกติ";
 let boba=document.getElementById("boba"+i).checked?"ใส่ไข่มุก":"ไม่ใส่ไข่มุก";
+let whip=document.getElementById("whip"+i).checked;
 
-let found=cart.find(c=>c.name===item.name&&c.sweet===sweet&&c.ice===ice&&c.boba===boba);
+let price=item.price;
+
+if(whip){
+  price += 10;
+}
+
+let found=cart.find(c=>c.name===item.name&&c.sweet===sweet&&c.ice===ice&&c.boba===boba&&c.whip===whip);
 
 if(found){found.qty++;}
-else{cart.push({name:item.name,price:item.price,qty:1,sweet,ice,boba});}
+else{cart.push({name:item.name,price:price,qty:1,sweet,ice,boba,whip});}
 
 update();
 }
