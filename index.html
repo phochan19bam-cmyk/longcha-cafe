@@ -189,9 +189,11 @@ function add(i){
   if (cheese) price += 15;
 }
 
-cart.forEach((c,i)=>{
-total+=c.price*c.qty;
-count+=c.qty;
+cart.push({
+  name: item.name,
+  price: price,  
+  qty: 1
+})
 
 html+=`${c.name} (${c.sweet}, ${c.ice}, ${c.boba})
 <button onclick="minus(${i})">-</button>
