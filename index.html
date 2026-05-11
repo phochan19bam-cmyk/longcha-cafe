@@ -140,27 +140,21 @@ menuDiv.innerHTML+=`
 <h3>${item.name}</h3>
 <p>${item.price} บาท</p>
 
-<label>ระดับความหวาน</label>
 <select id="sweet${i}">
-  <option>หวาน 100%</option>
-  <option>หวาน 75%</option>
-  <option>หวาน 50%</option>
-  <option>หวาน 25%</option>
-  <option>ไม่หวาน</option>
-</select><br>
+<option>หวาน 100%</option>
+<option>หวาน 75%</option>
+<option>หวาน 50%</option>
+<option>หวาน 25%</option>
+<option>ไม่หวาน</option>
+</select>
 
-<label><input type="checkbox" id="boba${i}"> ไข่มุก +5</label><br>
-<label><input type="checkbox" id="konjac${i}"> มุกบุก +5</label><br>
-<label><input type="checkbox" id="brown${i}"> มุกบราวน์ชูก้า +5</label><br>
-
-<br>
-
-<label><input type="checkbox" id="whip${i}"> เพิ่มวิปครีม +10</label><br>
-<label><input type="checkbox" id="cheese${i}"> เพิ่มครีมชีส +15</label><br>
+<label><input type="checkbox"> เพิ่มวิปครีม +10</label><br>
+<label><input type="checkbox"> เพิ่มครีมชีส +15</label>
 
 <br>
 
-<label><input type="checkbox" id="ice${i}"> แยกน้ำแข็ง</label><br>
+<label><input type="checkbox" id="ice${i}"> แยกน้ำแข็ง</label>
+<label><input type="checkbox" id="boba${i}"> ไข่มุก</label>
 
 <br><br>
 
@@ -171,29 +165,26 @@ menuDiv.innerHTML+=`
 });
 
 function add(i){
+let item=menu[i];
 
-  let item = menu[i];  
+let sweet=document.getElementById("sweet"+i).value;
+let ice=document.getElementById("ice"+i).checked?"แยกน้ำแข็ง":"น้ำแข็งปกติ";
+let boba=document.getElementById("boba"+i).checked?"ใส่ไข่มุก":"ไม่ใส่ไข่มุก";
 
-  let boba = document.getElementById(`boba${i}`).checked;
-  let konjac = document.getElementById(`konjac${i}`).checked;
-  let brown = document.getElementById(`brown${i}`).checked;
-  let whip = document.getElementById(`whip${i}`).checked;
-  let cheese = document.getElementById(`cheese${i}`).checked;
+let found=cart.find(c=>c.name===item.name&&c.sweet===sweet&&c.ice===ice&&c.boba===boba);
 
-  let price = item.price;
+if(found){found.qty++;}
+else{cart.push({name:item.name,price:item.price,qty:1,sweet,ice,boba});}
 
-  if (boba) price += 5;
-  if (konjac) price += 5;
-  if (brown) price += 5;
-  if (whip) price += 10;
-  if (cheese) price += 15;
+update();
 }
 
-cart.push({
-  name: item.name,
-  price: price,  
-  qty: 1
-})
+function update(){
+let total=0,count=0,html="";
+
+cart.forEach((c,i)=>{
+total+=c.price*c.qty;
+count+=c.qty;
 
 html+=`${c.name} (${c.sweet}, ${c.ice}, ${c.boba})
 <button onclick="minus(${i})">-</button>
