@@ -158,8 +158,8 @@ menuDiv.innerHTML+=`
 <option>ไม่หวาน</option>
 </select>
 
-<label><input type="checkbox"> เพิ่มวิปครีม +10</label><br>
-<label><input type="checkbox"> เพิ่มครีมชีส +15</label>
+<label><input type="checkbox" id="whip${i}"> เพิ่มวิปครีม +10</label><br>
+<label><input type="checkbox" id="cheese${i}"> เพิ่มครีมชีส +15</label>
 
 <br>
 
@@ -175,18 +175,47 @@ menuDiv.innerHTML+=`
 });
 
 function add(i){
-let item=menu[i];
 
-let sweet=document.getElementById("sweet"+i).value;
-let ice=document.getElementById("ice"+i).checked?"แยกน้ำแข็ง":"น้ำแข็งปกติ";
-let boba=document.getElementById("boba"+i).checked?"ใส่ไข่มุก":"ไม่ใส่ไข่มุก";
+let item = menu[i];
 
-let found=cart.find(c=>c.name===item.name&&c.sweet===sweet&&c.ice===ice&&c.boba===boba);
+let sweet = document.getElementById("sweet"+i).value;
+let ice = document.getElementById("ice"+i).checked ? "แยกน้ำแข็ง" : "น้ำแข็งปกติ";
+let boba = document.getElementById("boba"+i).checked ? "ใส่ไข่มุก" : "ไม่ใส่ไข่มุก";
 
-if(found){found.qty++;}
-else{cart.push({name:item.name,price:item.price,qty:1,sweet,ice,boba});}
+let whip = document.getElementById("whip"+i).checked;
+let cheese = document.getElementById("cheese"+i).checked;
+
+let price = item.price;
+
+if(whip) price += 10;
+if(cheese) price += 15;
+
+let found = cart.find(c =>
+    c.name===item.name &&
+    c.sweet===sweet &&
+    c.ice===ice &&
+    c.boba===boba &&
+    c.whip===whip &&
+    c.cheese===cheese
+);
+
+if(found){
+    found.qty++;
+}else{
+    cart.push({
+        name:item.name,
+        price:price,
+        qty:1,
+        sweet,
+        ice,
+        boba,
+        whip,
+        cheese
+    });
+}
 
 update();
+
 }
 
 function update(){
@@ -196,7 +225,16 @@ cart.forEach((c,i)=>{
 total+=c.price*c.qty;
 count+=c.qty;
 
-html+=`${c.name} (${c.sweet}, ${c.ice}, ${c.boba})
+let option=[];
+
+option.push(c.sweet);
+option.push(c.ice);
+option.push(c.boba);
+
+if(c.whip) option.push("วิปครีม");
+if(c.cheese) option.push("ครีมชีส");
+
+html+=`${c.name} (${option.join(", ")})
 <button onclick="minus(${i})">-</button>
 ${c.qty}
 <button onclick="plus(${i})">+</button><br>`;
@@ -218,7 +256,16 @@ c.style.display=c.style.display==="block"?"none":"block";
 function sendLine(){
 let msg="ออเดอร์ LONGCHA\n";
 cart.forEach(c=>{
-msg+=`${c.name} x${c.qty} (${c.sweet}, ${c.ice}, ${c.boba})\n`;
+let option=[];
+
+option.push(c.sweet);
+option.push(c.ice);
+option.push(c.boba);
+
+if(c.whip) option.push("วิปครีม");
+if(c.cheese) option.push("ครีมชีส");
+
+msg+=`${c.name} x${c.qty} (${option.join(", ")})\n`;
 });
 msg+="รวม "+document.getElementById("total").innerText+" บาท";
 
